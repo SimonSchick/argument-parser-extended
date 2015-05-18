@@ -276,14 +276,11 @@ p.getFlagHelpString = function(flagName) {
 	var defaultString = conf.default ? '(' + conf.default + ')' : '';
 	var requiredString = conf.required ? '!' : '';
 	var descriptionString = conf.description || '';
-	var middleString;
+	var middleString = '';
 	if (conf.enum) {
 		middleString = '=[' + conf.enum.join(',') + ']';
 	} else {
 		switch (conf.type) {
-			case 'boolean':
-				middleString = '';
-				break;
 			case 'number':
 			case 'integer':
 				middleString = '=<' + (conf.min ? (conf.min + '<=') : '') + conf.type + (conf.max ? ('<=' + conf.max) : '') + '>';
