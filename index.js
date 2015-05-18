@@ -3,6 +3,7 @@
 var fs = require('fs');
 var _ = require('lodash');
 var util = require('util');
+var esprintf = require('esprintf');
 
 var cmdLineRegex = /(?:(--?)([\w_][\w_-]*))|((:?["'].*?["']|[^"',=\s]+)(?:,(?:["'].*?["']|[^'',\s]+))*)/ig;
 
@@ -177,7 +178,7 @@ p.handleValue = function(entry, value, flag) {
 			}
 			break;
 		case 'array'://we are assuming all arguments in the array should be of a uniform type
-			if(typeof value === 'string') {
+			if (typeof value === 'string') {
 				value = value.split(',');
 			}
 			value = value.map(function(value, index, arr) {
@@ -289,34 +290,39 @@ p.handleFlag = function(curr, next) {
  * @param  {string} flagName
  * @return {string}
  */
-p.getFlagHelpString = function(flagName) {
+p.getFlagHelpInfo = function(flagName) {
 	var conf = this.config[flagName];
-	var baseString = (conf.short || '') + '--' + flagName;
-	var defaultString = conf.default ? '(' + conf.default + ')' : '';
-	var requiredString = conf.required ? '!' : '';
-	var descriptionString = conf.description || '';
-	var middleString = '';
+	var typeString = '';
 	if (conf.enum) {
-		middleString = '=[' + conf.enum.join(',') + ']';
+		typeString = '=[' + conf.enum.join(',') + ']';
 	} else {
 		switch (conf.type) {
 			case 'number':
 			case 'integer':
-				middleString = '=<' + (conf.min ? (conf.min + '<=') : '') + conf.type + (conf.max ? ('<=' + conf.max) : '') + '>';
+				typeString = (conf.min ? (conf.min + '<=') : '') + conf.type + (conf.max ? ('<=' + conf.max) : '');
 				break;
 			case 'string':
-				middleString = '=<string' + (conf.regex ? ' matching ' + conf.regex.source : '') + '>';
+				typeString = 'string' + (conf.regex ? ' matching ' + conf.regex.source : '');
 				break;
 			case 'array':
-				middleString = '=<' + 'array of ' + conf.subType + '>';
+				typeString = 'array of ' + conf.subType;
 				break;
 			case 'file':
-				middleString = '=<file>';
+				typeString = 'file';
 		}
 	}
 
-	return baseString + middleString + defaultString + requiredString + ' ' + descriptionString;
+	return {
+		name:			flagName,
+		type:			typeString,
+		default:		conf.default ? conf.default : '',
+		required:		conf.required === true,
+		description:	conf.description || ''
+	};
+};
 
+function arrayMax(arr) {
+  return Math.max.apply(null, arr);
 };
 
 /**
@@ -325,12 +331,65 @@ p.getFlagHelpString = function(flagName) {
  * @return {string}
  */
 p.getHelpString = function() {
+
+	var helpInfos = _.map(this.config, function(value, flagName) {
+		return this.getFlagHelpInfo(flagName);
+	}, this);
+
+	_.sortBy(helpInfos, 'name');
+
+	var max = {};
+
+	helpInfos.push({//take header size into account
+		name:			'Name',
+		type:			'Type',
+		default:		'Default',
+		required:		'Required',
+		description:	'Description'
+	})
+
+	_.forEach(['name', 'type', 'default', 'required', 'description'], function(attribute) {
+		max[attribute] = arrayMax(_.map(helpInfos, function(helpInfo) { return helpInfo[attribute].toString().length + 1; }));
+	});
+
+	helpInfos.pop();
+
+	var sprintfMask = '%-*s %-*s %-*s %-*s %-*s';
+
 	var ret = [];
 	ret.push('Description: ' + this.description);
-	ret.push('--FLAGNAME[=<TYPE>(DEFAULT)[!REQUIRED]');
-	ret.push('\n');
-	_.forEach(this.config, function(value, flagName, conf) {
-		ret.push(this.getFlagHelpString(flagName));
+	ret.push(
+		esprintf(
+			sprintfMask,
+			'Name',
+			max.name,
+			'Type',
+			max.type,
+			'Default',
+			max.default,
+			'Required',
+			max.required,
+			'Description',
+			max.description
+		)
+	);
+	ret.push('');
+	_.forEach(helpInfos, function(info) {
+		ret.push(
+			esprintf(
+				sprintfMask,
+				info.name,
+				max.name,
+				info.type,
+				max.type,
+				info.default,
+				max.default,
+				info.required,
+				max.required,
+				info.description,
+				max.description
+			)
+		);
 	}, this);
 	return ret.join('\n');
 };
@@ -346,6 +405,7 @@ p.parse = function(str) {
 	var stopParse = false;
 	split.forEach(function(flag) {
 		if (flag.isFlag && flag.value === 'help') {
+			console.log(this.getHelpString());
 			stopParse = true;
 		}
 	}, this);
