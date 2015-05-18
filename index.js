@@ -24,6 +24,11 @@ function ArgumentParser(description, config) {
 	this.config = config;
 	this.description = description || '';
 
+	config.help = help: {
+		type:			'boolean',
+		description:	'Show the help'
+	}
+
 	var flagRegex = /^[\w_][\w_-]*$/i;
 	var shortRegex = /^\w$/i;
 	var validTypes = ['number', 'integer', 'string', 'array', 'file', 'boolean'];
@@ -338,7 +343,7 @@ p.parse = function(str) {
 	var stopParse = false;
 	split.forEach(function(flag) {
 		if (flag.isFlag && flag.value === 'help') {
-			console.error(this.getHelpString());
+			console.log(this.getHelpString());
 			stopParse = true;
 		}
 	}, this);
