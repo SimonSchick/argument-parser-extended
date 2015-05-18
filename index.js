@@ -110,7 +110,6 @@ var p = ArgumentParser.prototype;
  * @return {Array.<Object>}
  */
 p.splitArgs = function(line) {
-	var matches;
 	var ret = [];
 	line.replace(cmdLineRegex, function(match, shortDash, shortFlags, value) {
 		if (shortDash === '-') {
@@ -124,7 +123,7 @@ p.splitArgs = function(line) {
 		} else {
 			ret.push({
 				isFlag: !!shortDash,
-				value: shortDash ? shortFlags : matches[3],
+				value: shortDash ? shortFlags : value,
 				isShort: false
 			});
 		}
@@ -141,7 +140,8 @@ p.splitArgs = function(line) {
  * @return {*}
  */
 p.handleValue = function(entry, value, flag) {
-	if (!value && entry.default && entry.type !== 'file') {
+
+	if (!value && entry.default) {
 		value = entry.default;
 	}
 
@@ -221,11 +221,12 @@ p.handleValue = function(entry, value, flag) {
 			});
 			break;
 		case 'file':
-			var path = entry.path || entry.default;
-			if (entry.json) {
-				var data = fs.readFileSync(path, entry.json ? 'utf8' : entry.encoding);
+			var path = value;
+			if (entry.file.json) {
+				var data = fs.readFileSync(path, entry.file.json ? 'utf8' : entry.encoding);
 				try {
-					return JSON.parse(data);
+					value = JSON.parse(data);
+
 				} catch (error) {
 					throw new Error('Could not parse json from file ' + path);
 				}
@@ -239,7 +240,6 @@ p.handleValue = function(entry, value, flag) {
 						}
 						throw error;
 					});
-					return value;
 				} catch (e) {
 					throw new Error('Could not open file ' + path);
 				}
@@ -343,7 +343,6 @@ p.parse = function(str) {
 	var stopParse = false;
 	split.forEach(function(flag) {
 		if (flag.isFlag && flag.value === 'help') {
-			console.log(this.getHelpString());
 			stopParse = true;
 		}
 	}, this);
