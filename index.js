@@ -382,6 +382,7 @@ p.parse = function(str) {
 			}
 		}
 	}, this);
+	return self.values;
 };
 
 /**
