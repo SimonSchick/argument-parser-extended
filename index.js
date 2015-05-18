@@ -24,10 +24,10 @@ function ArgumentParser(description, config) {
 	this.config = config;
 	this.description = description || '';
 
-	config.help = help: {
+	config.help = {
 		type:			'boolean',
 		description:	'Show the help'
-	}
+	};
 
 	var flagRegex = /^[\w_][\w_-]*$/i;
 	var shortRegex = /^\w$/i;
