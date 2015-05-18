@@ -323,7 +323,7 @@ p.getFlagHelpInfo = function(flagName) {
 
 function arrayMax(arr) {
   return Math.max.apply(null, arr);
-};
+}
 
 /**
  * @public
@@ -346,10 +346,12 @@ p.getHelpString = function() {
 		default:		'Default',
 		required:		'Required',
 		description:	'Description'
-	})
+	});
 
 	_.forEach(['name', 'type', 'default', 'required', 'description'], function(attribute) {
-		max[attribute] = arrayMax(_.map(helpInfos, function(helpInfo) { return helpInfo[attribute].toString().length + 1; }));
+		max[attribute] = arrayMax(_.map(helpInfos, function(helpInfo) {
+			return helpInfo[attribute].toString().length + 1;
+		}));
 	});
 
 	helpInfos.pop();
