@@ -1,0 +1,22 @@
+{
+  "name": "ArgumentParser",
+  "version": "0.1.0",
+  "description": "Sophisticated argument parser that can handle advanced command line structures and validation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SimonSchick/ArgumentParser.git"
+  },
+  "keywords": [
+    "argument",
+    "parser"
+  ],
+  "author": "Simon Schick",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/SimonSchick/ArgumentParser/issues"
+  }
+}
