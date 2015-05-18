@@ -294,7 +294,7 @@ p.getFlagHelpInfo = function(flagName) {
 	var conf = this.config[flagName];
 	var typeString = '';
 	if (conf.enum) {
-		typeString = '=[' + conf.enum.join(',') + ']';
+		typeString = 'enum (' + conf.enum.join(',') + ')';
 	} else {
 		switch (conf.type) {
 			case 'number':
