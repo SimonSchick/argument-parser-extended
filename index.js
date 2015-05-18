@@ -379,4 +379,12 @@ p.parse = function(str) {
 	}, this);
 };
 
+/**
+ * Utility function that directory passes the fixed command line args to the parse function.
+ * @return {Object.<string, *>}
+ */
+p.run = function() {
+	return this.parse(process.argv.slice(2).join(' '));
+};
+
 module.exports = ArgumentParser;
