@@ -378,7 +378,7 @@ p.parse = function(str) {
 				throw new Error('Flag \'' + k + '\' is required but was not set');
 			}
 			else if (v.default) {
-				self.values[k] = v.default;
+				self.values[k] = this.handleValue(v, undefined, k);
 			}
 		}
 	}, this);
