@@ -222,15 +222,15 @@ p.handleValue = function(entry, value, flag) {
 			break;
 		case 'file':
 			var path = entry.path || entry.default;
-			if(entry.json) {
+			if (entry.json) {
 				var data = fs.readFileSync(path, entry.json ? 'utf8' : entry.encoding);
 				try {
 					return JSON.parse(data);
-				} catch(error) {
+				} catch (error) {
 					throw new Error('Could not parse json from file ' + path);
 				}
 			}
-			if(entry.stream) {
+			if (entry.stream) {
 				try {
 					value = fs.createReadStream(path)
 					.on('error', function(error) {
