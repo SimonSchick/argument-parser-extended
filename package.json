@@ -18,5 +18,13 @@
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/SimonSchick/ArgumentParser/issues"
+  },
+  "devDependencies": {
+    "gulp": "~3.8.11",
+    "gulp-load-plugins": "~0.10.0",
+    "q": "~1.4.1",
+    "gulp-jscs": "^1.4.0",
+    "gulp-jshint": "^1.9.4",
+    "jshint-stylish": "^1.0.1"
   }
 }
