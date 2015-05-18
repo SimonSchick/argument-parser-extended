@@ -145,7 +145,7 @@ p.handleValue = function(entry, value, flag) {
 		value = entry.default;
 	}
 
-	if (value) {
+	if (value && typeof value === 'string') {
 		value = trimQuotes(value);
 	}
 
@@ -177,7 +177,10 @@ p.handleValue = function(entry, value, flag) {
 			}
 			break;
 		case 'array'://we are assuming all arguments in the array should be of a uniform type
-			value = value.split(',').map(function(value, index, arr) {
+			if(typeof value === 'string') {
+				value = value.split(',');
+			}
+			value = value.map(function(value, index, arr) {
 				value = trimQuotes(value);
 				if (entry.regex && !entry.regex.test(value)) {
 					throw new Error(
