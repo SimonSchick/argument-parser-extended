@@ -136,7 +136,7 @@ p.splitArgs = function(line) {
  * @return {*}
  */
 p.handleValue = function(entry, value, flag) {
-	if (!value && entry.default) {
+	if (!value && entry.default && entry.type !== 'file') {
 		value = entry.default;
 	}
 
@@ -216,17 +216,28 @@ p.handleValue = function(entry, value, flag) {
 			});
 			break;
 		case 'file':
-			try {
-				var path = value;
-				value = fs.createReadStream(value)
-				.on('error', function(error) {
-					if (error.errno === 34) {
-						throw new Error('Could not open file ' + path);
-					}
-					throw error;
-				});
-			} catch (e) {
-				throw new Error('Could not open file ' + value);
+			var path = entry.path || entry.default;
+			if(entry.json) {
+				var data = fs.readFileSync(path, entry.json ? 'utf8' : entry.encoding);
+				try {
+					return JSON.parse(data);
+				} catch(error) {
+					throw new Error('Could not parse json from file ' + path);
+				}
+			}
+			if(entry.stream) {
+				try {
+					value = fs.createReadStream(path)
+					.on('error', function(error) {
+						if (error.errno === 34) {
+							throw new Error('Could not open file ' + path);
+						}
+						throw error;
+					});
+					return value;
+				} catch (e) {
+					throw new Error('Could not open file ' + path);
+				}
 			}
 	}
 	var validatorResult;
