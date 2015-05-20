@@ -52,7 +52,7 @@ function ArgumentParser(description, config) {
 			throw new Error('Invalid argument to \'type\', \'' + v.type + '\' specified must be [' + validTypes.join(',') + ']');
 		}
 
-		v.subType = v.subType || 'boolean';//default to string
+		v.subType = v.subType || 'string';//default to string
 		if (v.type === 'array') {
 			if (validSubTypes.indexOf(v.subType) === -1) {
 				throw new Error('Invalid argument to \'type\', \'' + v.subType + '\' specified must be [' + validSubTypes.join(',') + ']');
@@ -222,6 +222,7 @@ p.handleValue = function(entry, value, flag) {
 							);
 						}
 				}
+				return value;
 			});
 			break;
 		case 'file':
