@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var _ = require('lodash');
-var util = require('util');
 var esprintf = require('esprintf');
 
 var cmdLineRegex = /(?:(--?)([\w_][\w_-]*))|((:?["'].*?["']|[^"',=\s]+)(?:,(?:["'].*?["']|[^'',\s]+))*)/ig;
@@ -13,7 +12,7 @@ var cmdLineRegex = /(?:(--?)([\w_][\w_-]*))|((:?["'].*?["']|[^"',=\s]+)(?:,(?:["
  * @return {string}
  */
 function trimQuotes(str) {
-	return str.replace(/^'(.*?)'$/, '$1');
+	return str.replace(/^(['"])(.*?)\1$/, '$2');
 }
 
 /**
@@ -38,6 +37,8 @@ function ArgumentParser(description, config) {
 		if (!flagRegex.test(switchName)) {
 			throw new Error('Invalid switch ' + switchName + ', long switches must match /^[\\w_][\\w_-]*$/');
 		}
+
+		v.printName = _.kebabCase(switchName);
 
 		if (v.required && v.default) {
 			throw new Error('Flag value cannot be required and have a default');
@@ -132,6 +133,80 @@ p.splitArgs = function(line) {
 	return ret;
 };
 
+function handleType(entry, value, flag) {
+	switch (entry.type) {
+		case 'boolean':
+			return true;
+		case 'integer':
+			if (value.indexOf('.') > -1) {
+				throw new Error('Argument for \'' + flag + '\' must be an integer value');
+			}
+			value = parseInt(value);
+			/* falls through */
+		case 'number':
+
+			value = parseFloat(value);
+
+			if (!isFinite(value)) {
+				throw new Error('Could not parse number from argument for \'' + flag + '\'');
+			}
+			if (entry.min && value < entry.min) {
+				throw new Error('Argument for \'' + flag + '\' must be greater or equal to ' + entry.min);
+			}
+
+			if (entry.max && value > entry.max) {
+				throw new Error('Argument for \'' + flag + '\' must be less or equal to ' + entry.min);
+			}
+			return value;
+		case 'string'://heh
+			if (entry.regex && !entry.regex.test(value)) {
+				throw new Error('Argument for \'' + flag + '\' did not match the regular expression ' + entry.regex.source);
+			}
+			return value;
+		case 'array'://we are assuming all arguments in the array should be of a uniform type
+			if (typeof value === 'string') {
+				value = value.split(',');
+			}
+
+			var subEntry = _.clone(entry);
+			subEntry.type = entry.subType;
+
+			return value.map(function(value, index, arr) {
+				value = trimQuotes(value);
+				return handleType(subEntry, value, flag);
+			});
+		case 'file':
+			var path = value;
+
+			var encoding = (entry.file && entry.file.json) ? 'utf8' : (entry.file ? entry.file.encoding : 'utf8');
+
+			var data = fs.readFileSync(path, encoding);
+			if (entry.file) {
+				if (entry.file.json) {
+					try {
+						return JSON.parse(data);
+					} catch (error) {
+						throw new Error('Could not parse json from file ' + path);
+					}
+				}
+				if (entry.file.stream) {
+					try {
+						return fs.createReadStream(path)
+						.on('error', function(error) {
+							if (error.errno === 34) {
+								throw new Error('Could not open file ' + path);
+							}
+							throw error;
+						});
+					} catch (e) {
+						throw new Error('Could not open file ' + path);
+					}
+				}
+			}
+			return data;
+	}
+}
+
 /**
  * Handles the parsing and validation of a value
  * @private
@@ -146,7 +221,7 @@ p.handleValue = function(entry, value, flag) {
 		value = entry.default;
 	}
 
-	if (value && typeof value === 'string') {
+	if (value && typeof value === 'string' || typeof value === 'array') {
 		value = trimQuotes(value);
 	}
 
@@ -154,102 +229,8 @@ p.handleValue = function(entry, value, flag) {
 		throw new Error('Invalid enum value for \'' + flag + '\' must be in [' + entry.enum.join(',') + ']');
 	}
 
-	switch (entry.type) {
-		case 'boolean':
-			value = true;
-			break;
-		case 'number':
-		case 'integer':
-			value = (entry.type === 'number' ? parseFloat : parseInt)(value);
-			if (!isFinite(value)) {
-				throw new Error('Could not parse number from argument for \'' + flag + '\'');
-			}
-			if (entry.min && value < entry.min) {
-				throw new Error('Argument for \'' + flag + '\' must be greater or equal to ' + entry.min);
-			}
+	value = handleType(entry, value, flag);
 
-			if (entry.max && value > entry.max) {
-				throw new Error('Argument for \'' + flag + '\' must be less or equal to ' + entry.min);
-			}
-			break;
-		case 'string'://heh
-			if (entry.regex && !entry.regex.test(value)) {
-				throw new Error('Argument for \'' + flag + '\' did not match the regular expression ' + entry.regex.source);
-			}
-			break;
-		case 'array'://we are assuming all arguments in the array should be of a uniform type
-			if (typeof value === 'string') {
-				value = value.split(',');
-			}
-			value = value.map(function(value, index, arr) {
-				value = trimQuotes(value);
-				if (entry.regex && !entry.regex.test(value)) {
-					throw new Error(
-						util.format(
-							'Member \'%s\' of argument for \'%s\' did not match the regular expression %s',
-							value,
-							flag,
-							entry.regex.source
-						)
-					);
-				}
-				switch (entry.subType) {
-					case 'integer':
-						value = (entry.subType === 'number' ? parseFloat : parseInt)(value);
-						if (!isFinite(value)) {
-							throw new Error('Could not parse number from member \'' + value + '\' of argument for \'' + flag + '\'');
-						}
-
-						if (entry.min && value < entry.min) {
-							throw new Error(
-								util.format(
-									'Member \'%s\' of argument for \'%s\' must be greater or equal than %s',
-									value,
-									flag,
-									entry.min
-								)
-							);
-						}
-
-						if (entry.max && value > entry.max) {
-							throw new Error(
-								util.format(
-									'Member \'%s\' of argument for \'%s\' must be less or equal than %s',
-									value,
-									flag,
-									entry.max
-								)
-							);
-						}
-				}
-				return value;
-			});
-			break;
-		case 'file':
-			var path = value;
-			if (entry.file.json) {
-				var data = fs.readFileSync(path, entry.file.json ? 'utf8' : entry.encoding);
-				try {
-					value = JSON.parse(data);
-
-				} catch (error) {
-					throw new Error('Could not parse json from file ' + path);
-				}
-			}
-			if (entry.stream) {
-				try {
-					value = fs.createReadStream(path)
-					.on('error', function(error) {
-						if (error.errno === 34) {
-							throw new Error('Could not open file ' + path);
-						}
-						throw error;
-					});
-				} catch (e) {
-					throw new Error('Could not open file ' + path);
-				}
-			}
-	}
 	var validatorResult;
 	if (
 		entry.validator &&
@@ -349,7 +330,7 @@ p.getHelpString = function() {
 		description:	'Description'
 	});
 
-	_.forEach(['name', 'type', 'default', 'required', 'description'], function(attribute) {
+	_.forEach(['printName', 'type', 'default', 'required', 'description'], function(attribute) {
 		max[attribute] = arrayMax(_.map(helpInfos, function(helpInfo) {
 			return helpInfo[attribute].toString().length + 1;
 		}));
@@ -381,8 +362,8 @@ p.getHelpString = function() {
 		ret.push(
 			esprintf(
 				sprintfMask,
-				info.name,
-				max.name,
+				info.printName,
+				max.printName,
 				info.type,
 				max.type,
 				info.default,
@@ -408,7 +389,6 @@ p.parse = function(str) {
 	var stopParse = false;
 	split.forEach(function(flag) {
 		if (flag.isFlag && flag.value === 'help') {
-			console.log(this.getHelpString());
 			stopParse = true;
 		}
 	}, this);
@@ -429,6 +409,7 @@ p.parse = function(str) {
 		if (!curr.isFlag) {
 			throw new Error('Unhandled value ' + curr.value);
 		}
+		curr.value = _.camelCase(curr.value);
 		var val = self.handleFlag(curr, next);
 		self.values[curr.value] = val;
 
