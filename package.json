@@ -1,5 +1,5 @@
 {
-  "name": "argument-parser",
+  "name": "argument-parser-extended",
   "version": "0.1.0",
   "description": "Sophisticated argument parser that can handle advanced command line structures and validation",
   "main": "index.js",
