@@ -318,7 +318,7 @@ p.getHelpString = function() {
 		return this.getFlagHelpInfo(flagName);
 	}, this);
 
-	_.sortBy(helpInfos, 'name');
+	_.sortBy(helpInfos, 'printName');
 
 	var max = {};
 
