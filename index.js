@@ -295,7 +295,7 @@ p.getFlagHelpInfo = function(flagName) {
 	}
 
 	return {
-		name:			flagName,
+		printName:		flagName,
 		type:			typeString,
 		default:		conf.default ? conf.default : '',
 		required:		conf.required === true,
@@ -323,7 +323,7 @@ p.getHelpString = function() {
 	var max = {};
 
 	helpInfos.push({//take header size into account
-		name:			'Name',
+		printName:			'Name',
 		type:			'Type',
 		default:		'Default',
 		required:		'Required',
@@ -346,7 +346,7 @@ p.getHelpString = function() {
 		esprintf(
 			sprintfMask,
 			'Name',
-			max.name,
+			max.printName,
 			'Type',
 			max.type,
 			'Default',
