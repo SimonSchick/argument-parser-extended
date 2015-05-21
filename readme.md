@@ -1,8 +1,8 @@
 # argument-parser
 
-[![NPM](https://nodei.co/npm/argument-parser.png)](https://nodei.co/npm/argument-parser/)
+[![NPM](https://nodei.co/npm/argument-parser-extended.png)](https://nodei.co/npm/argument-parser-extended/)
 
-[![Build Status](https://travis-ci.org/SimonSchick/argument-parser.svg?branch=master)](https://travis-ci.org/SimonSchick/argument-parser)
+[![Build Status](https://travis-ci.org/SimonSchick/ArgumentParser.svg?branch=master)](https://travis-ci.org/SimonSchick/ArgumentParser)
 
 ## Requirements & Installation
 
