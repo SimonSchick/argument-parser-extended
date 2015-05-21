@@ -295,7 +295,7 @@ p.getFlagHelpInfo = function(flagName) {
 	}
 
 	return {
-		printName:		flagName,
+		printName:		conf.printName,
 		type:			typeString,
 		default:		conf.default ? conf.default : '',
 		required:		conf.required === true,
@@ -323,7 +323,7 @@ p.getHelpString = function() {
 	var max = {};
 
 	helpInfos.push({//take header size into account
-		printName:			'Name',
+		printName:		'Name',
 		type:			'Type',
 		default:		'Default',
 		required:		'Required',
