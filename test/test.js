@@ -178,7 +178,39 @@ describe('ArgumentParser', function() {
 							stream: true
 						}
 					}
-				}).parse('--test test/simple_file.json').test instanceof fs.ReadStream);
+				}).parse('--test test/simple_file.json').test instanceof fs.ReadStream
+			);
+		});
+
+		it('Should be able to validate a value', function() {
+			assert.throws(function() {
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						validator:	function(val) {
+							if (val % 2 !== 0) {
+								throw new Error('must be a multiple of 2');
+							}
+						}
+					}
+				}).parse('--test 1');
+			}, function(error) {
+				return error instanceof Error && error.message.indexOf('must be a multiple of 2') > -1;
+			});
+		});
+
+		it('Should be able to transform a value with a validator', function() {
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						validator:	function(val) {
+							return val * 2;
+						}
+					}
+				}).parse('--test 1').test,
+				2
+			);
 		});
 
 	});
