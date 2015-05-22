@@ -231,13 +231,15 @@ p.handleValue = function(entry, value, flag) {
 
 	value = handleType(entry, value, flag);
 
-	var validatorResult;
-	if (
-		entry.validator &&
-		(validatorResult = entry.validator(value)) &&
-		((typeof validatorResult === 'object' && validatorResult.error) || validatorResult === false)
-	) {
-		throw new Error('Validator failed for argument for \'' + flag + '\', \'' + validatorResult.error + '\'');
+	if (entry.validator) {
+		try {
+			var validated = entry.validator(value);
+			if (validated !== undefined) {
+				value = validated;
+			}
+		} catch (error) {
+			throw new Error('Validator failed for argument for \'' + flag + '\', \'' + error.message + '\'');
+		}
 	}
 	return value;
 };
