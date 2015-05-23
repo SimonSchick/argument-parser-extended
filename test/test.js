@@ -87,6 +87,18 @@ describe('ArgumentParser', function() {
 			);
 		});
 
+		it('Should parse a single integer flag and fallback to its default value', function() {
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						default:	123
+					}
+				}).parse('--test').test,
+				123
+			);
+		});
+
 		it('Should throw an error if it could not parse an integer', function() {
 			assert.throws(function() {
 				new ArgumentParser('test', {
@@ -210,6 +222,120 @@ describe('ArgumentParser', function() {
 					}
 				}).parse('--test 1').test,
 				2
+			);
+		});
+
+		it('Should be able to parse a single short flag', function() {
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						short:		't'
+					}
+				}).parse('-t 1').test,
+				1
+			);
+		});
+
+		it('Should be able to parse a multiple short flag', function() {
+			assert.deepEqual(
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						short:		't'
+					},
+					test2: {
+						type:		'integer',
+						short:		'u'
+					}
+				}).parse('-t 1 -u 2'),
+				{
+					test:	1,
+					test2:	2
+				}
+			);
+		});
+
+		it('Should be able to parse multiple boolean flags', function() {
+			assert.deepEqual(
+				new ArgumentParser('test', {
+					a: {
+						type:		'boolean',
+						short:		'a'
+					},
+					b: {
+						type:		'boolean',
+						short:		'b'
+					},
+					c: {
+						type:		'boolean',
+						short:		'c'
+					},
+				}).parse('-abc'),
+				{
+					a:	true,
+					b:	true,
+					c:	true
+				}
+			);
+		});
+
+		it('Should be able to parse mixed short and long flags without values', function() {
+			assert.deepEqual(
+				new ArgumentParser('test', {
+					a: {
+						type:		'boolean',
+						short:		'a'
+					},
+					b: {
+						type:		'boolean',
+						short:		'b'
+					},
+					c: {
+						type:		'boolean',
+						short:		'c'
+					},
+				}).parse('-a --b --c'),
+				{
+					a:	true,
+					b:	true,
+					c:	true
+				}
+			);
+		});
+
+		it('Should be able to parse mixed short and long flags with values', function() {
+			assert.deepEqual(
+				new ArgumentParser('test', {
+					a: {
+						type:		'integer',
+						short:		'a',
+						default:	2
+					},
+					b: {
+						type:		'integer',
+						short:		'b'
+					},
+					c: {
+						type:		'integer',
+						short:		'c'
+					},
+				}).parse('-b 1 --c 2'),
+				{
+					a:	2,
+					b:	1,
+					c:	2
+				}
+			);
+		});
+
+		it('Should regocnize a general parameter', function() {
+			assert.deepEqual(
+				new ArgumentParser('test', {
+				}).parse('test'),
+				{
+					__append__: 'test'
+				}
 			);
 		});
 

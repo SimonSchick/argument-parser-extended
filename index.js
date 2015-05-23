@@ -4,8 +4,6 @@ var fs = require('fs');
 var _ = require('lodash');
 var esprintf = require('esprintf');
 
-var cmdLineRegex = /(?:(--?)([\w_][\w_-]*))|((:?["'].*?["']|[^"',=\s]+)(?:,(?:["'].*?["']|[^'',\s]+))*)/ig;
-
 /**
  * Trims quotes off the passed string.
  * @param  {string} str
@@ -33,77 +31,91 @@ function ArgumentParser(description, config) {
 	var shortRegex = /^\w$/i;
 	var validTypes = ['number', 'integer', 'string', 'array', 'file', 'boolean'];
 	var validSubTypes = ['number', 'integer', 'string', 'file'];
-	_.forEach(this.config, function(v, switchName, o) {
-		if (!flagRegex.test(switchName)) {
-			throw new Error('Invalid switch ' + switchName + ', long switches must match /^[\\w_][\\w_-]*$/');
+
+	this.values = {};
+	this.shortFlags = {};
+
+	_.forEach(this.config, function(flagConfig, flagName, o) {
+		if (!flagRegex.test(flagName)) {
+			throw new Error('Invalid flag ' + flagName + ', long flags must match /^[\\w_][\\w_-]*$/');
 		}
 
-		v.printName = _.kebabCase(switchName);
+		flagConfig.printName = _.kebabCase(flagName);
 
-		if (v.required && v.default) {
+		if (flagConfig.required && flagConfig.default) {
 			throw new Error('Flag value cannot be required and have a default');
 		}
 
-		if (v.enum && (v.type || v.subType || v.regex || v.min || v.max || v.validator || v.short)) {
+		if	(flagConfig.enum &&
+			(flagConfig.type || flagConfig.subType || flagConfig.regex || flagConfig.min || flagConfig.max)
+			) {
 			throw new Error('Flag must not have any validation attributes if it is an enum');
 		}
 
-		v.type = v.type || 'string';//default to string
-		if (validTypes.indexOf(v.type) === -1) {
-			throw new Error('Invalid argument to \'type\', \'' + v.type + '\' specified must be [' + validTypes.join(',') + ']');
+		flagConfig.type = flagConfig.type || 'string';//default to string
+		if (validTypes.indexOf(flagConfig.type) === -1) {
+			throw new Error('Invalid argument to \'type\', \'' + flagConfig.type + '\' specified must be [' + validTypes.join(',') + ']');
 		}
 
-		v.subType = v.subType || 'string';//default to string
-		if (v.type === 'array') {
-			if (validSubTypes.indexOf(v.subType) === -1) {
-				throw new Error('Invalid argument to \'type\', \'' + v.subType + '\' specified must be [' + validSubTypes.join(',') + ']');
+		flagConfig.subType = flagConfig.subType || 'string';//default to string
+		if (flagConfig.type === 'array') {
+			if (validSubTypes.indexOf(flagConfig.subType) === -1) {
+				throw new Error('Invalid argument to \'type\', \'' + flagConfig.subType + '\' specified must be [' + validSubTypes.join(',') + ']');
 			}
 		}
 
-		if (v.regex) {
-			if (v.type === 'number' || v.type === 'integer') {
-				throw new Error('Cannot use \'regex\' when type is \'' + v.type + '\'');
+		if (flagConfig.regex) {
+			if (flagConfig.type === 'number' || flagConfig.type === 'integer') {
+				throw new Error('Cannot use \'regex\' when type is \'' + flagConfig.type + '\'');
 			}
-			if (typeof v.regex === 'string') {
-				v.regex = new RegExp(v.regex);//Error is propagated
-			}
-			else if (!(v.regex instanceof RegExp)) {
+			if (typeof flagConfig.regex === 'string') {
+				flagConfig.regex = new RegExp(flagConfig.regex);//Error is propagated
+			} else if (!(flagConfig.regex instanceof RegExp)) {
 				throw new Error('Invalid argument to \'regex\', must be either a RegExp or compilable string');
 			}
 		}
 
-		if (v.min && typeof v.min !== 'number') {
+		if (flagConfig.min && typeof flagConfig.min !== 'number') {
 			throw new Error('Invalid argument to \'min\', must be a number');
 		}
 
-		if (v.max && typeof v.max !== 'number') {
+		if (flagConfig.max && typeof flagConfig.max !== 'number') {
 			throw new Error('Invalid argument to \'max\', must be a number');
 		}
 
-		if (v.filter && typeof v.filter !== 'function') {
+		if (flagConfig.filter && typeof flagConfig.filter !== 'function') {
 			throw new Error('Invalid argument to \'filter\', must be a function');
 		}
 
-		if (v.validator && typeof v.validator !== 'function') {
+		if (flagConfig.validator && typeof flagConfig.validator !== 'function') {
 			throw new Error('Invalid argument to \'validator\', must be a function');
 		}
 
-		if (v.short) {
-			if (typeof v.short !== 'string') {
+		if (flagConfig.short) {
+			if (typeof flagConfig.short !== 'string') {
 				throw new Error('Invalid argument to \'short\', must be a string');
 			}
 
-			if (!shortRegex.test(v.short)) {
+			if (!shortRegex.test(flagConfig.short)) {
 				throw new Error('Invalid argument to \'short\', string must match /^\\w$/');
 			}
-
-			this.config[v.short] = v;
+			if(this.shortFlags[flagConfig.short]) {
+				throw new Error('Dublicate short flag ' + flagConfig.short);
+			}
+			this.shortFlags[flagConfig.short] = flagName;
 		}
 	}, this);
-	this.values = {};
 }
 
 var p = ArgumentParser.prototype;
+
+/**
+ * First match groups is the long flag indicator
+ * Second match group is flag name
+ * Third match group is the value of the flag
+ * @type {RegExp}
+ */
+var cmdLineRegex = /(?:(--?)([\w_][\w_-]*))|((?:["'].*?["']|[^"',=\s]+)(?:,(?:["'].*?["']|[^'',\s]+))*)/ig;
 
 /**
  * Attempts to split given command line input into usable pieces.
@@ -138,7 +150,7 @@ function handleType(entry, value, flag) {
 		case 'boolean':
 			return true;
 		case 'integer':
-			if (value.indexOf('.') > -1) {
+			if (value.toString().indexOf('.') > -1) {
 				throw new Error('Argument for \'' + flag + '\' must be an integer value');
 			}
 			value = parseInt(value);
@@ -148,6 +160,7 @@ function handleType(entry, value, flag) {
 			value = parseFloat(value);
 
 			if (!isFinite(value)) {
+
 				throw new Error('Could not parse number from argument for \'' + flag + '\'');
 			}
 			if (entry.min && value < entry.min) {
@@ -210,8 +223,8 @@ function handleType(entry, value, flag) {
 /**
  * Handles the parsing and validation of a value
  * @private
- * @param  {Object} entry The corresponding switch config object for the switch.
- * @param  {string} value The raw string value associated with the switch
+ * @param  {Object} entry The corresponding flag config object for the flag.
+ * @param  {string} value The raw string value associated with the flag
  * @param  {string} flag  The name of the flag
  * @return {*}
  */
@@ -253,19 +266,22 @@ p.handleValue = function(entry, value, flag) {
  * @return {*}
  */
 p.handleFlag = function(curr, next) {
-	var entry = this.config[curr.value];
+	var name = curr.value;
+	if(curr.isShort) {
+		name = this.shortFlags[name];
+	}
+
+	var entry = this.config[name];
 	if (!entry) {
-		throw new Error('Unknown flag \'' + curr.value + '\'');
+		throw new Error('Unknown flag \'' + name + '\'');
 	}
 	if (this.values[curr.value]) {
-		throw new Error('Dublicate flag \'' + curr.value + '\'');
+		throw new Error('Dublicate flag \'' + name + '\'');
 	}
-	if (!curr.isShort) {
-		if (entry.required && next.isFlag) {
-			throw new Error('Flag \'' + curr.value + '\' requires a value');
-		}
-		return this.handleValue(entry, next && next.value, curr.value);
+	if (entry.required && next.isFlag) {
+		throw new Error('Flag \'' + name + '\' requires a value');
 	}
+	this.values[name] = this.handleValue(entry, next && next.value, name);
 };
 
 /**
@@ -408,12 +424,14 @@ p.parse = function(str) {
 			return;
 		}
 		var next = split[index + 1];
-		if (!curr.isFlag) {
+		if (!curr.isFlag && next) {
 			throw new Error('Unhandled value ' + curr.value);
+		} else if(!curr.isFlag && !next && (!split[index - 1] || (split[index - 1] && !split[index - 1].isFlag))) {
+			self.values.__append__ = curr.value;
+			return;
 		}
 		curr.value = _.camelCase(curr.value);
-		var val = self.handleFlag(curr, next);
-		self.values[curr.value] = val;
+		self.handleFlag(curr, next);
 
 		if (next && !next.isFlag) {
 			skipNext = true;
