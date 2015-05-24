@@ -338,6 +338,21 @@ describe('ArgumentParser', function() {
 				}
 			);
 		});
+	});
+
+	describe('#getHelpString()', function() {
+
+		it('Correctly prints a simple help info', function() {
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type: 'string'
+					}
+				}).getHelpString(),
+				'Description: test\nName  Type    Default  Required  Description   \n\ntest  string           false                   \nhelp                   false     Show the help '
+			);
+		});
 
 	});
+
 });
