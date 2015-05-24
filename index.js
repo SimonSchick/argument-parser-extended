@@ -321,10 +321,6 @@ p.getFlagHelpInfo = function(flagName) {
 	};
 };
 
-function arrayMax(arr) {
-  return Math.max.apply(null, arr);
-}
-
 /**
  * @public
  * Builds the complete help info.
@@ -349,9 +345,9 @@ p.getHelpString = function() {
 	});
 
 	_.forEach(['printName', 'type', 'default', 'required', 'description'], function(attribute) {
-		max[attribute] = arrayMax(_.map(helpInfos, function(helpInfo) {
-			return helpInfo[attribute].toString().length + 1;
-		}));
+		max[attribute] = _.max(helpInfos, function(helpInfo) {
+			return helpInfo[attribute].toString().length;
+		})[attribute].toString().length + 1;
 	});
 
 	helpInfos.pop();
