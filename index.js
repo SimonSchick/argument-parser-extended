@@ -68,7 +68,7 @@ function ArgumentParser(description, config) {
 		flagConfig.subType = flagConfig.subType || 'string';//default to string
 		if (flagConfig.type === 'array') {
 			if (validSubTypes.indexOf(flagConfig.subType) === -1) {
-				fError('Invalid argument to \'type\', \'%s\' specified must be [%s]', flagConfig.subType, validSubTypes.join(','));
+				fError('Invalid argument to \'subType\', \'%s\' specified must be [%s]', flagConfig.subType, validSubTypes.join(','));
 			}
 		}
 
@@ -89,10 +89,6 @@ function ArgumentParser(description, config) {
 
 		if (flagConfig.max && typeof flagConfig.max !== 'number') {
 			fError('Invalid argument to \'max\', must be a number');
-		}
-
-		if (flagConfig.filter && typeof flagConfig.filter !== 'function') {
-			fError('Invalid argument to \'filter\', must be a function');
 		}
 
 		if (flagConfig.validator && typeof flagConfig.validator !== 'function') {
@@ -171,8 +167,10 @@ function handleType(entry, value, flag) {
 			value = parseFloat(value);
 
 			if (!isFinite(value)) {
-
 				fError('Could not parse number from argument for \'%s\'', flag);
+			}
+			if (entry.min && entry.max && (entry.max < value || entry.min > value)) {
+				fError('Argument for \'%s\' must be between to %d and %d', flag, entry.min, entry.max);
 			}
 			if (entry.min && value < entry.min) {
 				fError('Argument for \'%s\' must be greater or equal to %d', flag, entry.min);
@@ -214,17 +212,7 @@ function handleType(entry, value, flag) {
 					}
 				}
 				if (entry.file.stream) {
-					try {
-						return fs.createReadStream(path)
-						.on('error', function(error) {
-							if (error.errno === 34) {
-								fError('Could not open file %s', path);
-							}
-							throw error;
-						});
-					} catch (e) {
-						fError('Could not open file %s', path);
-					}
+					return fs.createReadStream(path);
 				}
 			}
 			return data;
@@ -289,7 +277,7 @@ p.handleFlag = function(curr, next) {
 	if (this.values[curr.value]) {
 		fError('Dublicate flag \'%s\'', name);
 	}
-	if (entry.required && next.isFlag) {
+	if (entry.type !== 'boolean' && entry.default === undefined && (!next || next.isFlag)) {
 		fError('Flag \'%s\' requires a value', name);
 	}
 	this.values[name] = this.handleValue(entry, next && next.value, name);
@@ -326,7 +314,7 @@ p.getFlagHelpInfo = function(flagName) {
 	return {
 		printName:		conf.printName,
 		type:			typeString,
-		default:		conf.default ? conf.default : '',
+		default:		conf.default !== undefined ? conf.default : '',
 		required:		conf.required === true,
 		description:	conf.description || ''
 	};
