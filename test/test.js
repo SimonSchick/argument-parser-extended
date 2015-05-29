@@ -381,7 +381,9 @@ describe('ArgumentParser', function() {
 						type: 'string'
 					}
 				}).getHelpString(),
+				// jscs:disable
 				'Description: test\nName  Type    Default  Required  Description   \n\ntest  string           false                   \nhelp                   false     Show the help '
+				// jscs:enable
 			);
 		});
 
