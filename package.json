@@ -20,6 +20,7 @@
     "url": "https://github.com/SimonSchick/ArgumentParser/issues"
   },
   "devDependencies": {
+    "coveralls": "^2.11.2",
     "gulp": "~3.8.11",
     "gulp-jscs": "^1.4.0",
     "gulp-jshint": "^1.9.4",
