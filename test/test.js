@@ -65,6 +65,38 @@ describe('ArgumentParser', function() {
 			);
 		});
 
+		it('Should fall back to falsy default values', function() {
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'boolean',
+						default:	false
+					}
+				}).parse('').test,
+				false
+			);
+
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'integer',
+						default:	0
+					}
+				}).parse('').test,
+				0
+			);
+
+			assert.equal(
+				new ArgumentParser('test', {
+					test: {
+						type:		'string',
+						default:	''
+					}
+				}).parse('').test,
+				''
+			);
+		});
+
 		it('Should parse a single string flag', function() {
 			assert.equal(
 				new ArgumentParser('test', {
@@ -270,7 +302,7 @@ describe('ArgumentParser', function() {
 					c: {
 						type:		'boolean',
 						short:		'c'
-					},
+					}
 				}).parse('-abc'),
 				{
 					a:	true,
@@ -294,7 +326,7 @@ describe('ArgumentParser', function() {
 					c: {
 						type:		'boolean',
 						short:		'c'
-					},
+					}
 				}).parse('-a --b --c'),
 				{
 					a:	true,
@@ -319,7 +351,7 @@ describe('ArgumentParser', function() {
 					c: {
 						type:		'integer',
 						short:		'c'
-					},
+					}
 				}).parse('-b 1 --c 2'),
 				{
 					a:	2,
