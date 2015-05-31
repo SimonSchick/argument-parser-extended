@@ -20,7 +20,7 @@ function dArg(obj) {
 describe('ArgumentParser', function() {
 
 	describe('ArgumentParser()', function() {
-				it('Should throw when trying to specify a flag with a bad name', function() {
+		it('Should throw when trying to specify a flag with a bad name', function() {
 			assert.throws(
 				function() {
 					dArg({
@@ -794,6 +794,7 @@ describe('ArgumentParser', function() {
 
 
 // jshint multistr: true
+// jscs:disable disallowMultipleLineStrings
 var argumentTestString = 'Description: test\n\
 Name    Type                  Default  Required  Description   \n\
 \n\
@@ -804,6 +805,7 @@ test-4  1<=number<=5          3        false                   \n\
 test-5  array of string                false                   \n\
 help                                   false     Show the help ';
 // jshint multistr: false
+// jscs:enable disallowMultipleLineStrings
 
 	describe('#getHelpString()', function() {
 
