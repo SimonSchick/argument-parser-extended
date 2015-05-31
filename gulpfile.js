@@ -65,12 +65,14 @@ var files = [
 ];
 
 gulp.task('default', function() {
+	if (process.env.TRAVIS) {
+		return validateFiles(files, true);
+	}
 	return validateFiles(files);
 });
 
-gulp.task('travis', function() {
-	return validateFiles(files, true)
-	.then(coveralls);
+gulp.task('coveralls', function() {
+	return coveralls();
 });
 
 gulp.task('git-pre-commit', ['default']);
