@@ -4,7 +4,7 @@
   "description": "Sophisticated argument parser that can handle advanced command line structures and validation",
   "main": "index.js",
   "scripts": {
-    "test": "gulp"
+    "test": "gulp travis"
   },
   "repository": {
     "type": "git",
