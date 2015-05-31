@@ -64,3 +64,5 @@ gulp.task('validate', function(cb) {
 		'!coverage/**/'
 	]);
 });
+
+gulp.task('default', ['validate']);
