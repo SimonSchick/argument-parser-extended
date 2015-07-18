@@ -450,7 +450,17 @@ p.parse = function(str) {
  * @return {Object.<string, *>}
  */
 p.run = function() {
-	return this.parse(process.argv.slice(2).join(' '));
+	return this.parse(
+		process.argv.slice(2)
+		.map(function(segment) {
+			if (segment.match(/\s+/)) {
+				console.log(segment);
+				return '"' + segment + '"';
+			}
+			return segment;
+		}
+	)
+	.join(' '));
 };
 
 module.exports = ArgumentParser;
