@@ -308,6 +308,18 @@ describe('ArgumentParser', function() {
 			);
 		});
 
+		it('It will not fall back to the falsy default value even when a flag is set', function() {
+			assert(
+				dArg({
+					test: {
+						type:		'boolean',
+						default:	false
+					}
+				}).parse('--test').test,
+				true
+			);
+		});
+
 		it('Should fall back to falsy default values', function() {
 			assert.equal(
 				dArg({

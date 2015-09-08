@@ -229,6 +229,7 @@ function handleType(entry, value, flag) {
  */
 p.handleValue = function(entry, value, flag) {
 
+
 	if (!value && entry.default !== undefined) {
 		value = entry.default;
 	}
@@ -280,7 +281,13 @@ p.handleFlag = function(curr, next) {
 	if (entry.type !== 'boolean' && entry.default === undefined && (!next || next.isFlag)) {
 		fError('Flag \'%s\' requires a value', name);
 	}
-	this.values[name] = this.handleValue(entry, next && next.value, name);
+	var value;
+	if (entry.type === 'boolean') {
+		value = true;
+	} else {
+		value = next && next.value;
+	}
+	this.values[name] = this.handleValue(entry, value, name);
 };
 
 /**
