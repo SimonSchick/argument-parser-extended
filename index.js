@@ -461,7 +461,6 @@ p.run = function() {
 		process.argv.slice(2)
 		.map(function(segment) {
 			if (segment.match(/\s+/)) {
-				console.log(segment);
 				return '"' + segment + '"';
 			}
 			return segment;
