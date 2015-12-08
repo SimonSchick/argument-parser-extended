@@ -54,7 +54,7 @@ Parses the command line directly, otherwise behaves just like parse.
 
 ### string ArgumentParser.getHelpString()
 
-Returns a nicely formatted usage info.
+Returns nicely formatted usage info.
 
 ## Usage examples
 
@@ -74,15 +74,12 @@ var argParser = new ArgumentParser('example', {
 	}
 });
 
-var conf;
 try {
-	conf = argParser.run();
+	var conf = argParser.run();
+	console.log(conf.myParam, conf.myConfig);
 } catch(e) {
 	console.error(argParser.getHelpText());
-	return;
 }
-
-console.log(conf.myParam, conf.myConfig);
 ```
 
 ```
