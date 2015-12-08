@@ -1,3 +1,10 @@
+logs
+coverage
+docs
+test
+*.log
+complexityreport.md
+*.*~
 .complexrc
 .cpd.yaml
 .editorconfig
