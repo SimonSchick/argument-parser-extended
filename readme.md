@@ -76,7 +76,7 @@ var argParser = new ArgumentParser('example', {
 
 var conf;
 try {
-	config = argParser.run();
+	conf = argParser.run();
 } catch(e) {
 	console.error(argParser.getHelpText());
 	return;
