@@ -1,0 +1,10 @@
+.complexrc
+.cpd.yaml
+.editorconfig
+.jscs
+.jscsrc
+.jsdoc
+.jshintignore
+.jshintrc
+.travis.yml
+gulpfile.js
