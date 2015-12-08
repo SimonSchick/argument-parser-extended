@@ -808,14 +808,14 @@ describe('ArgumentParser', function() {
 // jshint multistr: true
 // jscs:disable disallowMultipleLineStrings
 var argumentTestString = 'Description: test\n\
-Name    Type                  Default  Required  Description   \n\
+Short Name    Type                  Default  Required  Description   \n\
 \n\
-test    string matching hurp           false                   \n\
-test-2  enum (a,b,c)                   false                   \n\
-test-3  file                           false                   \n\
-test-4  1<=number<=5          3        false                   \n\
-test-5  array of string                false                   \n\
-help                                   false     Show the help ';
+t     test    string matching hurp           false                   \n\
+      test-2  enum (a,b,c)                   false                   \n\
+      test-3  file                           false                   \n\
+      test-4  1<=number<=5          3        false                   \n\
+      test-5  array of string                false                   \n\
+      help                                   false     Show the help ';
 // jshint multistr: false
 // jscs:enable disallowMultipleLineStrings
 
@@ -827,7 +827,8 @@ help                                   false     Show the help ';
 				dArg({
 					test: {
 						type:	'string',
-						regex:	/hurp/
+						regex:	/hurp/,
+						short:  't'
 					},
 					test2: {
 						enum: ['a', 'b', 'c']

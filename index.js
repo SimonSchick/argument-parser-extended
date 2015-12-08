@@ -323,7 +323,8 @@ p.getFlagHelpInfo = function(flagName) {
 		type:			typeString,
 		default:		conf.default !== undefined ? conf.default : '',
 		required:		conf.required === true,
-		description:	conf.description || ''
+		description:	conf.description || '',
+		short:			conf.short
 	};
 };
 
@@ -358,13 +359,14 @@ p.getHelpString = function() {
 
 	helpInfos.pop();
 
-	var sprintfMask = '%-*s %-*s %-*s %-*s %-*s';
+	var sprintfMask = '%-5s %-*s %-*s %-*s %-*s %-*s';
 
 	var ret = [];
 	ret.push('Description: ' + this.description);
 	ret.push(
 		esprintf(
 			sprintfMask,
+			'Short',
 			'Name',
 			max.printName,
 			'Type',
@@ -382,6 +384,7 @@ p.getHelpString = function() {
 		ret.push(
 			esprintf(
 				sprintfMask,
+				info.short || '',
 				info.printName,
 				max.printName,
 				info.type,
