@@ -9,7 +9,7 @@
 
 ## Requirements & Installation
 
-Just run npm install argument-parse
+Just run ```npm install argument-parser-extended```
 
 ## Documentation
 
