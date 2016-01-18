@@ -21,16 +21,16 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.2",
-    "gulp": "~3.8.11",
+    "gulp": "^3.9.0",
     "gulp-coveralls": "^0.1.4",
     "gulp-eslint": "^1.1.1",
-    "gulp-filter": "^2.0.2",
-    "gulp-istanbul": "^0.9.0",
-    "gulp-load-plugins": "~0.10.0",
+    "gulp-filter": "^3.0.1",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-load-plugins": "^1.2.0",
     "gulp-mocha": "^2.1.0",
-    "istanbul": "^0.3.14",
+    "istanbul": "^0.4.2",
     "mocha": "^2.2.5",
-    "mocha-lcov-reporter": "0.0.2",
+    "mocha-lcov-reporter": "^1.0.0",
     "q": "~1.4.1"
   },
   "dependencies": {
@@ -38,6 +38,6 @@
     "lodash": "^4.0.0"
   },
   "engines": {
-  	"node": ">=4.0.0"
+    "node": ">=4.0.0"
   }
 }
