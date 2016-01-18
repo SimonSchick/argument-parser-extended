@@ -3,15 +3,8 @@ coverage
 docs
 test
 *.log
-complexityreport.md
 *.*~
-.complexrc
-.cpd.yaml
 .editorconfig
-.jscs
-.jscsrc
-.jsdoc
-.jshintignore
-.jshintrc
+.eslintrc
 .travis.yml
 gulpfile.js
