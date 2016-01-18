@@ -1,28 +1,28 @@
 'use strict';
 
-var assert = require('assert'); // node.js core module
-var fs = require('fs');
+const assert = require('assert'); // node.js core module
+const fs = require('fs');
 
-var ArgumentParser = require('../index');
+const ArgumentParser = require('../index');
 
 /* global describe, it */
 
 function testErrorMessage(regex) {
-	return function(error) {
-		return regex.test(error.message);
-	};
+	return error => regex.test(error.message);
 }
 
 function dArg(obj) {
 	return new ArgumentParser('test', obj);
 }
 
-describe('ArgumentParser', function() {
+/* eslint-disable max-nested-callbacks, key-spacing */
 
-	describe('ArgumentParser()', function() {
-		it('Should throw when trying to specify a flag with a bad name', function() {
+describe('ArgumentParser', () => {
+
+	describe('ArgumentParser()', () => {
+		it('Should throw when trying to specify a flag with a bad name', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						$: {
 							type: 'integer'
@@ -34,9 +34,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when a flag is required and has a default', function() {
+		it('Should throw when a flag is required and has a default', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer',
@@ -50,9 +50,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when a flag is required and has a default', function() {
+		it('Should throw when a flag is required and has a default', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer',
@@ -66,9 +66,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when a flag is is an enum and has other attributes', function() {
+		it('Should throw when a flag is is an enum and has other attributes', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							enum:		['a', 'b'],
@@ -81,9 +81,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when the specified type is unknown', function() {
+		it('Should throw when the specified type is unknown', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'dongs'
@@ -95,9 +95,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when the specified subType is unknown', function() {
+		it('Should throw when the specified subType is unknown', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'array',
@@ -110,9 +110,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when regex was not string or RegExp', function() {
+		it('Should throw when regex was not string or RegExp', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'string',
@@ -125,9 +125,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when it could not compile the regex', function() {
+		it('Should throw when it could not compile the regex', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'string',
@@ -140,9 +140,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when min is not a number', function() {
+		it('Should throw when min is not a number', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer',
@@ -155,9 +155,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when max is not a number', function() {
+		it('Should throw when max is not a number', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer',
@@ -170,9 +170,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when validator is not a function', function() {
+		it('Should throw when validator is not a function', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:			'integer',
@@ -185,9 +185,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when short is not a string', function() {
+		it('Should throw when short is not a string', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:			'integer',
@@ -200,9 +200,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when short is invalid', function() {
+		it('Should throw when short is invalid', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:			'integer',
@@ -215,9 +215,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when short is duplicate', function() {
+		it('Should throw when short is duplicate', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:			'integer',
@@ -234,9 +234,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when regex is specified for integer/number', function() {
+		it('Should throw when regex is specified for integer/number', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:			'integer',
@@ -251,11 +251,11 @@ describe('ArgumentParser', function() {
 	});
 
 
-	describe('#parse()', function() {
+	describe('#parse()', () => {
 
-		it('Should throw when the input is garbage', function() {
+		it('Should throw when the input is garbage', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({}).parse('sertzowe785nw3z8945psyie80wzsh\'\'+!!!daefpüs--');
 				},
 				Error,
@@ -263,7 +263,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should supports flags with dashes', function() {
+		it('Should supports flags with dashes', () => {
 			assert(dArg({
 				testThis: {
 					type: 'boolean'
@@ -271,13 +271,13 @@ describe('ArgumentParser', function() {
 			}).parse('--test-this').testThis, true);
 		});
 
-		it('Should return false when --help was set', function() {
+		it('Should return false when --help was set', () => {
 			assert.equal(dArg({}).parse('--help'), false, 'Is not false');
 		});
 
-		it('Should throw an error when an unregister flag is set', function() {
+		it('Should throw an error when an unregister flag is set', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({}).parse('--test');
 				},
 				testErrorMessage(/Unknown flag/),
@@ -285,7 +285,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single boolean flag', function() {
+		it('Should parse a single boolean flag', () => {
 			assert(
 				dArg({
 					test: {
@@ -296,7 +296,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single boolean flag and fallback to the default value', function() {
+		it('Should parse a single boolean flag and fallback to the default value', () => {
 			assert(
 				dArg({
 					test: {
@@ -308,7 +308,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('It will not fall back to the falsy default value even when a flag is set', function() {
+		it('It will not fall back to the falsy default value even when a flag is set', () => {
 			assert(
 				dArg({
 					test: {
@@ -320,7 +320,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should fall back to falsy default values', function() {
+		it('Should fall back to falsy default values', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -352,7 +352,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single string flag', function() {
+		it('Should parse a single string flag', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -363,7 +363,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single integer flag', function() {
+		it('Should parse a single integer flag', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -374,7 +374,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single integer flag and fallback to its default value', function() {
+		it('Should parse a single integer flag and fallback to its default value', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -386,9 +386,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw an error if it could not parse an integer', function() {
+		it('Should throw an error if it could not parse an integer', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type: 'integer'
@@ -399,9 +399,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw an error if the specified value is out of range', function() {
+		it('Should throw an error if the specified value is out of range', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:	'integer',
@@ -415,7 +415,7 @@ describe('ArgumentParser', function() {
 			);
 
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:	'integer',
@@ -428,7 +428,7 @@ describe('ArgumentParser', function() {
 			);
 
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:	'integer',
@@ -443,21 +443,20 @@ describe('ArgumentParser', function() {
 		});
 
 
-		it('Should throw an error if the number was passed a float', function() {
+		it('Should throw an error if the number was passed a float', () => {
 			assert.throws(
-				function() {
-					return dArg({
-						test: {
-							type: 'integer'
-						}
-					}).parse('--test 3.4141');
-				},
+				() => dArg({
+					test: {
+						type: 'integer'
+					}
+				}).parse('--test 3.4141')
+				,
 				Error,
 				'Did not throw error'
 			);
 		});
 
-		it('Should parse a single number flag', function() {
+		it('Should parse a single number flag', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -468,22 +467,20 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should validate strings using regex', function() {
+		it('Should validate strings using regex', () => {
 			assert.throws(
-				function() {
-					return dArg({
-						test: {
-							type:	'string',
-							regex:	/[a-f]+/
-						}
-					}).parse('--test g');
-				},
+				() => dArg({
+					test: {
+						type:	'string',
+						regex:	/[a-f]+/
+					}
+				}).parse('--test g'),
 				Error,
 				'Did not throw error'
 			);
 		});
 
-		it('Should parse a single array flag with number subtype', function() {
+		it('Should parse a single array flag with number subtype', () => {
 			assert.deepEqual(
 				dArg({
 					test: {
@@ -495,7 +492,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single array flag with string subtype', function() {
+		it('Should parse a single array flag with string subtype', () => {
 			assert.deepEqual(
 				dArg({
 					test: {
@@ -507,7 +504,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single file flag and return the contents', function() {
+		it('Should parse a single file flag and return the contents', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -518,7 +515,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single file flag and return the contents as json', function() {
+		it('Should parse a single file flag and return the contents as json', () => {
 			assert.deepEqual(
 				dArg({
 					test: {
@@ -534,9 +531,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should throw when json file contents are corrupted', function() {
+		it('Should throw when json file contents are corrupted', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'file',
@@ -551,7 +548,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should parse a single file flag and return the contents as stream', function() {
+		it('Should parse a single file flag and return the contents as stream', () => {
 			assert(
 				dArg({
 					test: {
@@ -564,9 +561,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should error when the file specified could not be opened', function() {
+		it('Should error when the file specified could not be opened', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'file'
@@ -578,39 +575,34 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should be able to validate a value', function() {
+		it('Should be able to validate a value', () => {
 			assert.throws(
-				function() {
-				dArg({
+				() => dArg({
 					test: {
 						type:		'integer',
-						validator:	function(val) {
+						validator: val => {
 							if (val % 2 !== 0) {
 								throw new Error('must be a multiple of 2');
 							}
 						}
 					}
-				}).parse('--test 1');
-			}, function(error) {
-				return error instanceof Error && error.message.indexOf('must be a multiple of 2') > -1;
-			});
+				}).parse('--test 1')
+			, error => error instanceof Error && error.message.indexOf('must be a multiple of 2') > -1);
 		});
 
-		it('Should be able to transform a value with a validator', function() {
+		it('Should be able to transform a value with a validator', () => {
 			assert.equal(
 				dArg({
 					test: {
 						type:		'integer',
-						validator:	function(val) {
-							return val * 2;
-						}
+						validator:	val => val * 2
 					}
 				}).parse('--test 1').test,
 				2
 			);
 		});
 
-		it('Should be able to parse a single short flag', function() {
+		it('Should be able to parse a single short flag', () => {
 			assert.equal(
 				dArg({
 					test: {
@@ -622,7 +614,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should be able to parse a multiple short flag', function() {
+		it('Should be able to parse a multiple short flag', () => {
 			assert.deepEqual(
 				dArg({
 					test: {
@@ -641,7 +633,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should be able to parse multiple boolean flags', function() {
+		it('Should be able to parse multiple boolean flags', () => {
 			assert.deepEqual(
 				dArg({
 					a: {
@@ -665,7 +657,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should be able to parse mixed short and long flags without values', function() {
+		it('Should be able to parse mixed short and long flags without values', () => {
 			assert.deepEqual(
 				dArg({
 					a: {
@@ -689,7 +681,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should be able to parse mixed short and long flags with values', function() {
+		it('Should be able to parse mixed short and long flags with values', () => {
 			assert.deepEqual(
 				dArg({
 					a: {
@@ -714,7 +706,7 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should regocnize a general parameter', function() {
+		it('Should regocnize a general parameter', () => {
 			assert.deepEqual(
 				dArg({
 				}).parse('test'),
@@ -724,9 +716,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should error when a required flag was not set', function() {
+		it('Should error when a required flag was not set', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							required:	true,
@@ -739,9 +731,9 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should error when a flag was set twice', function() {
+		it('Should error when a flag was set twice', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer'
@@ -753,25 +745,23 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should error when a non-boolean flag has no value', function() {
+		it('Should error when a non-boolean flag has no value', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							type:		'integer'
 						}
 					}).parse('--test');
 				},
-				function(error) {
-					return error instanceof Error && error.message === 'Flag \'test\' requires a value';
-				},
+				error => error instanceof Error && error.message === 'Flag \'test\' requires a value',
 				'Did not throw error'
 			);
 		});
 
-		it('Should error when an unknown enum is used', function() {
+		it('Should error when an unknown enum is used', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
 							enum:		['a', 'b']
@@ -783,15 +773,12 @@ describe('ArgumentParser', function() {
 			);
 		});
 
-		it('Should error when an unknown enum is used', function() {
+		it('Should error when an unknown enum is used', () => {
 			assert.throws(
-				function() {
+				() => {
 					dArg({
 						test: {
-							type: 'integer',
-							validator: function() {
-
-							}
+							type: 'integer'
 						}
 					}).parse('--test c');
 				},
@@ -802,12 +789,7 @@ describe('ArgumentParser', function() {
 
 	});
 
-
-
-
-// jshint multistr: true
-// jscs:disable disallowMultipleLineStrings
-var argumentTestString = 'Description: test\n\
+	const argumentTestString = 'Description: test\n\
 Short Name    Type                  Default  Required  Description   \n\
 \n\
 t     test    string matching hurp           false                   \n\
@@ -819,9 +801,9 @@ t     test    string matching hurp           false                   \n\
 // jshint multistr: false
 // jscs:enable disallowMultipleLineStrings
 
-	describe('#getHelpString()', function() {
+	describe('#getHelpString()', () => {
 
-		it('Correctly prints a simple help info', function() {
+		it('Correctly prints a simple help info', () => {
 
 			assert.equal(
 				dArg({
@@ -853,10 +835,10 @@ t     test    string matching hurp           false                   \n\
 
 	});
 
-	describe('#run()', function() {
+	describe('#run()', () => {
 
-		it('Correctly pipes process.argv', function() {
-			var oldArgv = process.argv;
+		it('Correctly pipes process.argv', () => {
+			const oldArgv = process.argv;
 			process.argv = ['program', 'other', '--test', '1'];
 			assert.equal(
 				dArg({
